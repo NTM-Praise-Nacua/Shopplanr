@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\ShopPlan;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class ShopPlanController extends Controller
 {
@@ -42,23 +44,42 @@ class ShopPlanController extends Controller
             'address' => 'required|string|max:255',
             'date_scheduled' => 'required|date',
             'budget' => 'required|numeric',
-            'number_of_items' => 'required|integer'
+            'number_of_items' => 'required|integer',
+            'items' => 'required|array|min:1',
+            'items.*.name' => 'required|string|max:255',
+            'items.*.expected_quantity' => 'required|numeric|min:0'
         ]);
+
+        $dateScheduled = Carbon::parse($request->date_scheduled);
+
+        $status = 0;
+        if ($dateScheduled->lt(today())) {
+            $status = 3;
+        }
 
         $shopPlan = ShopPlan::create([
             'created_by' => $request->created_by,
             'address' => $request->address,
             'date_scheduled' => $request->date_scheduled,
             'budget' => $request->budget,
-            'number_of_items' => $request->number_of_items
+            'number_of_items' => $request->number_of_items,
+            'status' => $status
         ]);
 
         if ($shopPlan) {
             // call item creation here
-            $shopPlan->items()->create([
-                'name' => $request->item_name,
-                'price' => $request->item_price,
-            ]);
+            $itemsData = collect($request->items)->map(function ($item) use ($shopPlan) {
+                return [
+                    'shop_plan_id' => $shopPlan->id,
+                    'name' => $item['name'],
+                    'expected_quantity' => $item['expected_quantity'],
+                    'price' => 0,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            })->toArray();
+            
+            $shopPlan->items()->insert($itemsData);
 
             return response()->json([
                 'success' => true,
@@ -90,7 +111,9 @@ class ShopPlanController extends Controller
     public function show($id)
     {
         // $shopPlan = ShopPlan::find($id, ['id', 'address', 'date_scheduled', 'budget', 'number_of_items', 'status']);
-        $shopPlan = ShopPlan::query()
+        $shopPlan = ShopPlan::with([
+                'items:id,shop_plan_id,name,price,expected_quantity,actual_quantity'
+            ])
             ->select([
                 'id',
                 'address',
@@ -106,8 +129,7 @@ class ShopPlanController extends Controller
                     ->where('status', 1)
                     ->whereColumn('id', '!=', 'shop_plans.id'),
             ])
-            ->where('id', $id)
-            ->first();
+            ->findOrFail($id);
 
         if ($shopPlan) {
             return response()->json([
@@ -145,17 +167,45 @@ class ShopPlanController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|numeric|in:1,2'
+            'status' => 'required|numeric|in:1,2',
+            'items' => 'required_if:status,2|array',
+            'items.*.name' => [
+                'required_if:status,2',
+                'string',
+                'distinct',
+                Rule::exists('items', 'name')->where('shop_plan_id', $id),
+            ],
+            'items.*.price' => 'required_if:status,2|numeric|min:0',
+            'items.*.actual_quantity' => 'required_if:status,2|numeric|min:0',
         ]);
 
         $shopPlan = ShopPlan::find($id);
 
         if ($shopPlan) {
             if ($request->status === 2) {
-                $shopPlan->update([
-                    'status' => $request->status,
-                    'budget' => $request->budget ?? $shopPlan->budget
-                ]);
+                $items = [];
+                DB::transaction(function () use ($request, $shopPlan) {
+                    $itemsById = $shopPlan->items->keyBy('name');
+
+                    $totalSpent = 0;
+
+                    foreach ($request->items as $itemData) {
+                        $item = $itemsById[$itemData['name']] ?? null;
+                        if ($item) {
+                            $item->update([
+                                'price' => $itemData['price'],
+                                'actual_quantity' => $itemData['actual_quantity'],
+                            ]);
+                            $totalSpent += $itemData['price'] * $itemData['actual_quantity'];
+                        }
+                        $items[] = $item;
+                    }
+
+                    $shopPlan->update([
+                        'status' => 2,
+                        'budget' => $shopPlan->budget - $totalSpent,
+                    ]);
+                });
             } else {
                 $inProgress = ShopPlan::where('created_by', $shopPlan->created_by)
                     ->where('status', 1)
@@ -179,7 +229,8 @@ class ShopPlanController extends Controller
                 'message' => 'Shop plan status updated successfully',
                 'data' => [
                     'id' => $shopPlan->id,
-                    'status' => $shopPlan->status
+                    'status' => $shopPlan->status,
+                    'items' => $items,
                 ]
             ], 200);
         } else {
@@ -210,12 +261,57 @@ class ShopPlanController extends Controller
             ->whereIn('status', [0, 1])
             ->update(['status' => 3]);
 
-        $shopPlans = ShopPlan::select('id', 'address', 'date_scheduled', 'status')->where('created_by', $userId)->get();
+        $shopPlans = ShopPlan::select('id', 'address', 'date_scheduled', 'budget', 'number_of_items', 'status')->where('created_by', $userId)->get();
 
         return response()->json([
             'success' => true,
             'message' => 'Shop plans retrieved successfully',
             'data' => $shopPlans
         ], 200);
+    }
+
+    public function updateOverdue($userId)
+    {
+        // Update overdue shop plans and forgotten in-progress shop plans
+        $shopPlans = ShopPlan::where('created_by', $userId)
+            ->whereDate('date_scheduled', '<', Carbon::today())
+            ->whereIn('status', [0, 1])
+            ->update(['status' => 3]);
+
+        if ($shopPlans > 0) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Updated Overdue Plans',
+                'data' => true
+            ], 200);
+        } else {
+            return response()->json([
+                'success' => true,
+                'message' => 'No overdue Plans found',
+                'data' => false
+            ], 200);
+        }
+    }
+
+    public function startPlan($id)
+    {
+        $shopPlan = ShopPlan::find($id);
+
+        if ($shopPlan) {
+            $shopPlan->status = 1;
+            $shopPlan->save();
+    
+            return response()->json([
+                'success' => true,
+                'message' => 'Shop plans started successfully',
+                'data' => true,
+            ], 200);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Shop plan not found',
+                'data' => false
+            ], 404);
+        }
     }
 }

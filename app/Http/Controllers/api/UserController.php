@@ -16,7 +16,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        //
+        return User::all();
     }
 
     /**
@@ -29,6 +29,16 @@ class UserController extends Controller
         //
     }
 
+    public function test()
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'test from api',
+            'data' => [
+                'message' => 'test from api'
+            ]
+        ],201);
+    }
     /**
      * Store a newly created resource in storage.
      *
@@ -56,7 +66,13 @@ class UserController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'User created successfully',
-                'data' => $user
+                'data' => [
+                    'id' => $user->id,
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'full_name' => $user->full_name,
+                    'email' => $user->email,
+                ]
             ], 201);
         } else {
             return response()->json([

@@ -10,8 +10,13 @@ class Item extends Model
     use HasFactory;
 
     protected $fillable = [
-        'shop_plan_id',
         'name',
         'price',
+        'expected_quantity',
+        'actual_quantity',
+    ];
+
+    protected $hidden = [
+        'shop_plan_id'
     ];
 }

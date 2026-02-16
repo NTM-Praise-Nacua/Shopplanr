@@ -17,7 +17,7 @@ class CreateItemsTable extends Migration
             $table->id();
             $table->foreignId('shop_plan_id')->constrained('shop_plans');
             $table->string('name');
-            $table->integer('price')->nullable();
+            $table->float('price')->nullable();
             $table->timestamps();
         });
     }

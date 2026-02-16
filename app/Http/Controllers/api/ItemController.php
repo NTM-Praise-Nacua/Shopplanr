@@ -37,15 +37,17 @@ class ItemController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'quantity' => 'required|integer',
             'shop_plan_id' => 'required|integer|exists:shop_plans,id',
+            // 'server_id' => 'required|integer|exists:shop_plans,id',
+            'name' => 'required|string|max:255',
+            'expected_quantity' => 'required|integer',
         ]);
 
         $item = Item::create([
+            'shop_plan_id' => $request->server_id,
             'name' => $request->name,
-            'quantity' => $request->quantity,
-            'shop_plan_id' => $request->shop_plan_id,
+            'price' => 0,
+            'expected_quantity' => $request->expected_quantity,
         ]);
 
         if ($item) {
@@ -54,10 +56,10 @@ class ItemController extends Controller
                 'message' => 'Item created successfully',
                 'data' => [
                     'id' => $item->id,
-                    'name' => $item->name,
-                    'quantity' => $item->quantity,
                     'shop_plan_id' => $item->shop_plan_id,
-                    'price' => $item->price
+                    'name' => $item->name,
+                    'price' => $item->price,
+                    'expected_quantity' => $item->expected_quantity,
                 ]
             ], 201);
         } else {
