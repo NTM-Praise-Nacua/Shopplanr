@@ -26,8 +26,10 @@ Route::post('/users/login', [UserController::class, 'login']);
 Route::apiResource('shop_plans', ShopPlanController::class);
 Route::put('/shop_plans/update-status/{id}', [ShopPlanController::class, 'updateStatus']);
 Route::put('/shop_plans/overdue/{id}', [ShopPlanController::class, 'updateOverdue']);
+Route::put('/shop_plans/checkUp/{id}', [ShopPlanController::class, 'checkUpdate']);
 Route::put('/shop_plans/start/{id}', [ShopPlanController::class, 'startPlan']);
 Route::get('/shop_plans/by-user/{id}', [ShopPlanController::class, 'getShopPlansByUser']);
+Route::get('/shop_plans/items/{id}', [ShopPlanController::class, 'getItemsByPlan']);
 Route::post('/items', [ItemController::class, 'store']);
 
 Route::get('/test', [UserController::class, 'test']);
