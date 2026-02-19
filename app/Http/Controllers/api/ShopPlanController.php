@@ -91,7 +91,8 @@ class ShopPlanController extends Controller
                     'date_scheduled' => $shopPlan->date_scheduled,
                     'budget' => $shopPlan->budget,
                     'number_of_items' => $shopPlan->number_of_items,
-                    'status' => $shopPlan->status
+                    'status' => $shopPlan->status,
+                    // 'items' => $shopPlan->items->toArray(),
                 ]
             ], 201);
         } else {
@@ -275,7 +276,7 @@ class ShopPlanController extends Controller
             ->update(['status' => 3]);
 
         $fromDate = Carbon::now()->subDays(3)->startOfDay();
-        $shopPlans = ShopPlan::select('id', 'address', 'date_scheduled', 'budget', 'number_of_items', 'status')
+        $shopPlans = ShopPlan::select('id', 'address', 'date_scheduled', 'budget', 'number_of_items', 'status', 'created_by', 'updated_at')
             ->where('created_by', $userId)
             ->where('updated_at', '>=', $fromDate)
             ->get();
@@ -289,7 +290,7 @@ class ShopPlanController extends Controller
 
     public function getItemsByPlan($planId)
     {
-        $items = Item::where('shop_plan_id', $planId);
+        $items = Item::where('shop_plan_id', $planId)->get();
 
         if ($items) {
             return response()->json([
