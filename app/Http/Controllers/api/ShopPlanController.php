@@ -279,6 +279,7 @@ class ShopPlanController extends Controller
         $shopPlans = ShopPlan::select('id', 'address', 'date_scheduled', 'budget', 'number_of_items', 'status', 'created_by', 'updated_at')
             ->where('created_by', $userId)
             ->where('updated_at', '>=', $fromDate)
+            ->latest()
             ->get();
 
         return response()->json([
@@ -360,10 +361,26 @@ class ShopPlanController extends Controller
         }
     }
 
+    public function checkStartedPlan($id)
+    {
+        $shopPlans = ShopPlan::where('created_by', $id)->where('status', 1)->get();
+        if (count($shopPlans) > 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Another Plan is In Progress',
+                'data' => $shopPlans,
+            ]);
+        } else {
+            return response()->json([
+                'success' => true,
+                'message' => 'Safe to Start Plan',
+                'data' => $shopPlans,
+            ], 200);
+        }
+    }
+
     public function checkUpdate($id)
     {
         $shopPlans = ShopPlan::where('created_by', $id)->get();
-        
-
     }
 }
