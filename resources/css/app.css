@@ -1,5 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
 /* @import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"); */
+@import "@fortawesome/fontawesome-free/css/all.min.css";
+@import "toastr/build/toastr.min.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -40,15 +43,15 @@
     }
 
     .logreg-form {
-        @apply p-10 rounded-2xl bg-white w-[90%] md:w-125 max-h-168.75 flex flex-col gap-3 justify-center items-center shadow relative;
+        @apply p-10 rounded-2xl bg-white w-[90%] md:w-[500px] max-h-[675px] flex flex-col gap-3 justify-center items-center shadow relative;
     }
 
     .inputfield {
-        @apply rounded-xl px-6 py-4 w-full md:w-68 bg-[#d9d9d9] text-sm focus:outline-none;
+        @apply rounded-xl px-6 py-4 w-full md:w-[272px] bg-[#d9d9d9] text-sm focus:outline-none;
     }
 
     .primary-button {
-        @apply flex justify-center items-center text-center disabled:opacity-50 hover:opacity-95 transition-opacity ease-in text-white py-3 px-5 rounded-xl w-full md:w-68 text-xs md:text-sm cursor-pointer;
+        @apply flex justify-center items-center text-center disabled:opacity-50 hover:opacity-95 transition-opacity ease-in text-white py-3 px-5 rounded-xl w-full md:w-[272px] text-xs md:text-sm cursor-pointer;
     }
 
     .text-link {
@@ -60,7 +63,7 @@
     }
 
     .sidebar {
-        @apply w-11/12 md:w-64 p-6 h-full flex flex-col gap-6 absolute -left-11/12 md:static justify-self-start z-20 transition-all ease-in;
+        @apply w-11/12 md:w-64 p-6 h-full flex flex-col gap-6 absolute -left-[91.666667%] md:static justify-self-start z-20 transition-all ease-in;
     }
 
     .main-content-wrapper {
@@ -91,7 +94,7 @@
     }
 
     .title-wrapper {
-        @apply bg-white rounded-xl p-4 md:p-6 text-2xl font-bold shadow-md w-full;
+        @apply bg-white border border-gray-100 rounded-xl p-4 md:p-6 text-2xl font-bold shadow-md w-full;
     }
 
     .plan-fields-wrapper {
@@ -99,7 +102,7 @@
     }
 
     .items-plan-wrapper {
-        @apply px-3 md:px-6 2xl:px-72 pb-18 flex-1 overflow-y-auto flex flex-col gap-6 relative;
+        @apply px-3 md:px-6 2xl:px-72 pb-[72px] flex-1 overflow-y-auto flex flex-col gap-6 relative;
     }
 
     .product-item {
