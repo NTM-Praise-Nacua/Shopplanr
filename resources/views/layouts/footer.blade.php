@@ -13,18 +13,4 @@
             toastr.error('{{ $error }}')
         @endforeach
     @endif
-
-    function notif(status, message) {
-        switch (status) {
-            case 'error':
-                toastr.error(message);
-                break;
-            case 'warning': 
-                toastr.warning(message);
-                break;
-            default:
-                toastr.success(message);
-                break;
-        }
-    }
 </script>
