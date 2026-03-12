@@ -35,7 +35,7 @@ class UserController extends Controller
             'success' => true,
             'message' => 'test from api',
             'data' => [
-                'message' => 'test from api'
+                'message' => 'test from api exam'
             ]
         ],201);
     }

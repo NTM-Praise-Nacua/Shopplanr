@@ -77,7 +77,7 @@
         let itemCount = 0;
         let itemMessageEl = null;
         let submitButtonEl = null;
-        $('#add-item').on('click', function() {
+        $('#create-item').on('click', function() {
             itemCount++;
             if (!itemMessageEl) {
                 itemMessageEl = $('.no-item-message').clone();

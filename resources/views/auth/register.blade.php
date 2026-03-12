@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('content')
     <div class="flex justify-center items-center h-full w-full">
-        <form action="{{ route('user.store') }}" method="POST" class="logreg-form">
+        <form method="POST" class="logreg-form">
             @csrf
             <a href="/" class="absolute text-accent top-7 left-7 text-lg font-extrabold">
                 <i class="fa-solid fa-arrow-left"></i>

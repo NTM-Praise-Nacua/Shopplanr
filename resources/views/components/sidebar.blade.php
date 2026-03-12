@@ -19,12 +19,12 @@
                 <p class="flex-1">Plans</p>
             </div>
         </a>
-        <a href="/settings" class="hover:opacity-75 transition-all ease-in">
+        {{-- <a href="/settings" class="hover:opacity-75 transition-all ease-in">
             <div class="flex gap-3 text-xl px-5 py-3 {{ $settings ? 'active' : '' }}">
                 <div><i class="fa-solid fa-gear"></i></div>
                 <p class="flex-1">Settings</p>
             </div>
-        </a>
+        </a> --}}
     </div>
 
     <form action="{{ route('auth.logout') }}" method="post">

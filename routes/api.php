@@ -34,6 +34,73 @@ Route::get('/shop_plans/items/{id}', [ShopPlanController::class, 'getItemsByPlan
 Route::post('/items', [ItemController::class, 'store']);
 
 Route::get('/test', [UserController::class, 'test']);
+    $items = [
+        [
+            'id' => 0,
+            'name' => 'coffee',
+            'price' => 12.00,
+            'quantity' => 2,
+        ],
+        [
+            'id' => 1,
+            'name' => 'burger',
+            'price' => 49.00,
+            'quantity' => 6,
+        ],
+        [
+            'id' => 2,
+            'name' => 'skyflakes',
+            'price' => 9.50,
+            'quantity' => 10,
+        ],
+        [
+            'id' => 3,
+            'name' => 'fries',
+            'price' => 75.00,
+            'quantity' => 2,
+        ],
+    ];
+Route::get("/examget", function() {
+
+});
+
+Route::get("/examgetone/{name}", function($name) {
+    $items = [
+        [
+            'id' => 0,
+            'name' => 'coffee',
+            'price' => 12.00,
+            'quantity' => 2,
+        ],
+        [
+            'id' => 1,
+            'name' => 'burger',
+            'price' => 49.00,
+            'quantity' => 6,
+        ],
+        [
+            'id' => 2,
+            'name' => 'skyflakes',
+            'price' => 9.50,
+            'quantity' => 10,
+        ],
+        [
+            'id' => 3,
+            'name' => 'fries',
+            'price' => 75.00,
+            'quantity' => 2,
+        ],
+    ];
+    $result = $name;
+
+    return response()->json($result);
+});
+Route::post('/exampost', function(Request $request) {
+    return response()->json([
+        'status' => 'success',
+        'data' => $request->all()
+    ]);
+});
 // Route::get('/test', function() {
 //     return response()->json([
 //         "success" => true,
